@@ -138,39 +138,6 @@ AI-powered helpdesk for instant support
 
 
 #### Architecture Diagram
-┌─────────────────────────────────────────────────────────┐
-│                    Client (Browser)                      │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐ │
-│  │  React   │  │ React    │  │  React   │  │ React    │ │
-│  │   App    │  │ Router   │  │ Context  │  │  Hooks   │ │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘ │
-└───────┼─────────────┼─────────────┼─────────────┼───────┘
-        │             │             │             │
-        └─────────────┼─────────────┼─────────────┘
-                      │             │
-                ┌─────▼─────────────▼─────┐
-                │     REST API Calls      │
-                │    (Fetch/Axios)        │
-                └────────────┬────────────┘
-                             │
-                ┌────────────▼────────────┐
-                │    FastAPI Backend      │
-                │  ┌──────────────────┐   │
-                │  │   API Routes     │   │
-                │  │   - /auth/*      │   │
-                │  │   - /assets/*    │   │
-                │  │   - /tickets/*   │   │
-                │  └─────────┬────────┘   │
-                │            │             │
-                │  ┌─────────▼────────┐   │
-                │  │ Business Logic   │   │
-                │  └─────────┬────────┘   │
-                │            │             │
-                │  ┌─────────▼────────┐   │
-                │  │   MongoDB        │   │
-                │  │   Database       │   │
-                │  └──────────────────┘   │
-                └─────────────────────────┘
 <img width="22853" height="7885" alt="ASM- Architeture" src="https://github.com/user-attachments/assets/c029c3d6-9327-4e2f-a33b-a54c3c4d132a" />
 
 
@@ -332,9 +299,9 @@ This combined policy governs the use of the ASM System and explains how user and
 - Violations may result in access suspension or disciplinary action.
 
 ### Video Demo 
-- Part 1 [https://www.loom.com/share/b03521f0a2b54ddd963dafdcec2a6ed3 ]([url](https://www.loom.com/share/b03521f0a2b54ddd963dafdcec2a6ed3))
+- Part 1 [https://www.loom.com/share/b03521f0a2b54ddd963dafdcec2a6ed3 ]((https://www.loom.com/share/b03521f0a2b54ddd963dafdcec2a6ed3))
 - Part 2 [https://www.loom.com/share/7046ccd5dcfa461e9e5f712010ec8f04 ](https://www.loom.com/share/7046ccd5dcfa461e9e5f712010ec8f04)
-- Part 3 [https://www.loom.com/share/38f21e7e13934ed790897c97213cb14b]((https://www.loom.com/share/38f21e7e13934ed790897c97213cb14b))
+- Part 3 [https://www.loom.com/share/38f21e7e13934ed790897c97213cb14b](https://www.loom.com/share/38f21e7e13934ed790897c97213cb14b)
 
 ### Author
 Vanessa UWONKUNDA 
