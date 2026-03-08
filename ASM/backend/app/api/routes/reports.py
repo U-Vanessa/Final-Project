@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 
@@ -204,6 +204,7 @@ def check_sla(db: Session = Depends(get_db)):
 def get_notifications(
 	voucher_id: int | None = Query(default=None),
 	unread_only: bool = Query(default=False),
+	target_email: str | None = Query(default=None),
 	limit: int = Query(default=30, ge=1, le=200),
 	db: Session = Depends(get_db),
 ):
@@ -213,6 +214,13 @@ def get_notifications(
 		query = query.filter(TicketNotification.voucher_id == voucher_id)
 	if unread_only:
 		query = query.filter(TicketNotification.is_read.is_(False))
+	if target_email:
+		query = query.filter(
+			or_(
+				TicketNotification.target_email.is_(None),
+				TicketNotification.target_email == target_email,
+			)
+		)
 
 	return query.order_by(TicketNotification.created_at.desc()).limit(limit).all()
 
@@ -232,9 +240,17 @@ def mark_notification_read(notification_id: int, db: Session = Depends(get_db)):
 @router.post("/notifications/read-all")
 def mark_all_notifications_read(payload: dict, db: Session = Depends(get_db)):
 	voucher_id = payload.get("voucher_id") if isinstance(payload, dict) else None
+	target_email = payload.get("target_email") if isinstance(payload, dict) else None
 	query = db.query(TicketNotification).filter(TicketNotification.is_read.is_(False))
 	if voucher_id is not None:
 		query = query.filter(TicketNotification.voucher_id == voucher_id)
+	if target_email:
+		query = query.filter(
+			or_(
+				TicketNotification.target_email.is_(None),
+				TicketNotification.target_email == target_email,
+			)
+		)
 
 	updated = query.update({TicketNotification.is_read: True}, synchronize_session=False)
 	db.commit()

@@ -5,6 +5,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.db.session import SessionLocal
+from app.models.notification import TicketNotification
 from app.models.user import User
 from app.models.voucher import Voucher
 from app.schemas.voucher_schema import VoucherCreateRequest, VoucherResponse, VoucherStatus, VoucherUpdateRequest
@@ -73,6 +74,18 @@ def create_voucher(payload: VoucherCreateRequest, db: Session = Depends(get_db))
 	)
 
 	db.add(voucher)
+	db.flush()
+
+	if selected_it_user:
+		notification = TicketNotification(
+			voucher_id=voucher.id,
+			category="ticket_assigned",
+			severity="medium",
+			message=f"New ticket {voucher.ticket_number} assigned to you: {voucher.title}",
+			target_email=selected_it_user.email,
+		)
+		db.add(notification)
+
 	db.commit()
 	db.refresh(voucher)
 	return voucher
@@ -101,6 +114,8 @@ def update_voucher(voucher_id: int, payload: VoucherUpdateRequest, db: Session =
 		raise HTTPException(status_code=404, detail="Voucher not found")
 
 	update_data = payload.model_dump(exclude_unset=True)
+	previous_assigned_to_id = voucher.assigned_to_id
+	assignee = None
 
 	if "assigned_to_id" in update_data and update_data["assigned_to_id"] is not None:
 		assignee = (
@@ -116,6 +131,23 @@ def update_voucher(voucher_id: int, payload: VoucherUpdateRequest, db: Session =
 
 	if voucher.status in ["resolved", "closed"] and voucher.resolved_at is None:
 		voucher.resolved_at = datetime.utcnow()
+
+	if (
+		"assigned_to_id" in update_data
+		and voucher.assigned_to_id is not None
+		and voucher.assigned_to_id != previous_assigned_to_id
+	):
+		if not assignee:
+			assignee = db.query(User).filter(User.id == voucher.assigned_to_id).first()
+		if assignee:
+			notification = TicketNotification(
+				voucher_id=voucher.id,
+				category="ticket_assigned",
+				severity="medium",
+				message=f"Ticket {voucher.ticket_number} assigned to you: {voucher.title}",
+				target_email=assignee.email,
+			)
+			db.add(notification)
 
 	db.commit()
 	db.refresh(voucher)

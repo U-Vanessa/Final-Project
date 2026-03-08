@@ -26,9 +26,14 @@ class Document(Base):
 
 	priority = Column(String, default="medium", nullable=False)
 	status = Column(String, default="submitted", nullable=False)
+	approval_status = Column(String, default="pending", nullable=False, index=True)
+	approved_by_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+	approved_at = Column(DateTime, nullable=True)
+	approval_note = Column(Text, nullable=True)
 
 	submitted_by_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
 	voucher_id = Column(Integer, ForeignKey("vouchers.id"), nullable=True, index=True)
+	disposal_id = Column(Integer, nullable=True, index=True)
 
 	created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 	updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

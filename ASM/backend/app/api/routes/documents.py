@@ -8,7 +8,12 @@ from app.db.session import SessionLocal
 from app.models.document import Document
 from app.models.user import User
 from app.models.voucher import Voucher
-from app.schemas.document_schema import DocumentCreateRequest, DocumentLinkRequest, DocumentResponse
+from app.schemas.document_schema import (
+    DocumentApprovalRequest,
+    DocumentCreateRequest,
+    DocumentLinkRequest,
+    DocumentResponse,
+)
 
 router = APIRouter()
 
@@ -49,8 +54,10 @@ def create_document(payload: DocumentCreateRequest, db: Session = Depends(get_db
         observation=payload.observation,
         key_recommendation=payload.key_recommendation,
         priority=payload.priority,
+        approval_status="pending",
         submitted_by_id=submitted_by_id,
         voucher_id=payload.voucher_id,
+        disposal_id=payload.disposal_id,
     )
 
     db.add(document)
@@ -76,6 +83,38 @@ def link_document_to_voucher(document_id: int, payload: DocumentLinkRequest, db:
             raise HTTPException(status_code=404, detail="Voucher not found")
 
     document.voucher_id = payload.voucher_id
+    db.commit()
+    db.refresh(document)
+    return document
+
+
+@router.patch("/{document_id}/approve", response_model=DocumentResponse)
+def approve_document(document_id: int, payload: DocumentApprovalRequest, db: Session = Depends(get_db)):
+    document = db.query(Document).filter(Document.id == document_id).first()
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    approver = None
+    if payload.approved_by_email:
+        approver = db.query(User).filter(User.email == payload.approved_by_email).first()
+        if not approver:
+            raise HTTPException(status_code=404, detail="Approving user not found")
+
+        if (approver.role or "").upper() != "IT":
+            raise HTTPException(status_code=403, detail="Only IT personnel can approve or reject documents")
+
+    document.approval_status = payload.decision
+    document.approved_by_id = approver.id if approver else None
+    document.approved_at = datetime.utcnow()
+    document.approval_note = payload.approval_note
+
+    if payload.decision == "approved":
+        document.status = "approved"
+    elif payload.decision == "rejected":
+        document.status = "rejected"
+    else:
+        document.status = "submitted"
+
     db.commit()
     db.refresh(document)
     return document

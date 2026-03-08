@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 
 DocumentPriority = Literal["low", "medium", "high", "critical"]
+DocumentApprovalStatus = Literal["pending", "approved", "rejected"]
 
 
 class DocumentCreateRequest(BaseModel):
@@ -20,6 +21,7 @@ class DocumentCreateRequest(BaseModel):
     key_recommendation: str | None = None
     priority: DocumentPriority = "medium"
     voucher_id: int | None = None
+    disposal_id: int | None = None
     submitted_by_email: str | None = None
 
 
@@ -38,8 +40,13 @@ class DocumentResponse(BaseModel):
     key_recommendation: str | None = None
     priority: str
     status: str
+    approval_status: str
+    approved_by_id: int | None = None
+    approved_at: datetime | None = None
+    approval_note: str | None = None
     submitted_by_id: int | None = None
     voucher_id: int | None = None
+    disposal_id: int | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -48,3 +55,9 @@ class DocumentResponse(BaseModel):
 
 class DocumentLinkRequest(BaseModel):
     voucher_id: int | None = None
+
+
+class DocumentApprovalRequest(BaseModel):
+    decision: DocumentApprovalStatus
+    approved_by_email: str | None = None
+    approval_note: str | None = None

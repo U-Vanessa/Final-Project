@@ -2,8 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.session import engine, Base
 from app.db.migrations import run_startup_migrations
-from app.models import user, voucher, document, sla_config, notification
-from app.api.routes import users, auth, vouchers, reports, documents, chatbot
+from app.models import user, voucher, document, disposal, sla_config, notification
+from app.api.routes import users, auth, vouchers, reports, documents, disposal as disposal_routes, chatbot
+from app.core.config import settings
 
 # STEP 1: Create FastAPI app FIRST
 app = FastAPI(
@@ -13,12 +14,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -34,6 +30,7 @@ app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(vouchers.router, prefix="/vouchers", tags=["Vouchers"])
 app.include_router(reports.router, prefix="/reports", tags=["Reports"])
 app.include_router(documents.router, prefix="/documents", tags=["Documents"])
+app.include_router(disposal_routes.router, prefix="/disposal", tags=["Disposal"])
 app.include_router(chatbot.router, prefix="/chatbot", tags=["Chatbot"])
 
 # STEP 4: Test route

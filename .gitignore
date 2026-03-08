@@ -1,0 +1,14 @@
+# Local secrets
+ASM/backend/.env
+
+# Python caches
+**/__pycache__/
+*.pyc
+
+# Local SQLite databases
+app.db
+ASM/backend/app.db
+
+# Local virtual environments
+.venv/
+ASM/.venv/
