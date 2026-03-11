@@ -12,3 +12,4 @@ ASM/backend/app.db
 # Local virtual environments
 .venv/
 ASM/.venv/
+ASM/backend/venv/

@@ -22,6 +22,15 @@ def run_startup_migrations(engine) -> None:
         document_columns = {column["name"] for column in inspector.get_columns("documents")}
 
     required_document_columns = {
+        "document_type": "ALTER TABLE documents ADD COLUMN document_type VARCHAR DEFAULT 'returning'",
+        "recipient_email": "ALTER TABLE documents ADD COLUMN recipient_email VARCHAR",
+        "source_of_computer": "ALTER TABLE documents ADD COLUMN source_of_computer VARCHAR",
+        "acquisition_details": "ALTER TABLE documents ADD COLUMN acquisition_details VARCHAR",
+        "receiving_comment": "ALTER TABLE documents ADD COLUMN receiving_comment TEXT",
+        "user_signature": "ALTER TABLE documents ADD COLUMN user_signature VARCHAR",
+        "user_signed_at": "ALTER TABLE documents ADD COLUMN user_signed_at DATETIME",
+        "signature_status": "ALTER TABLE documents ADD COLUMN signature_status VARCHAR DEFAULT 'not_required'",
+        "asset_status": "ALTER TABLE documents ADD COLUMN asset_status VARCHAR DEFAULT 'active'",
         "approval_status": "ALTER TABLE documents ADD COLUMN approval_status VARCHAR DEFAULT 'pending'",
         "approved_by_id": "ALTER TABLE documents ADD COLUMN approved_by_id INTEGER",
         "approved_at": "ALTER TABLE documents ADD COLUMN approved_at DATETIME",
