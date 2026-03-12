@@ -26,6 +26,7 @@ class OpenAIService:
             logger.warning("openai package is not installed - chatbot will use fallback responses")
             return
 
+        logger.warning(settings.openai_api_key)
         if settings.openai_api_key:
             try:
                 self.client = OpenAI(api_key=settings.openai_api_key)
