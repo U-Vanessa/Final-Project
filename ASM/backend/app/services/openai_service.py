@@ -26,21 +26,38 @@ class OpenAIService:
             logger.warning("openai package is not installed - chatbot will use fallback responses")
             return
 
-        logger.warning(settings.openai_api_key)
+       # logger.warning(settings.openai_api_key)
+       # if settings.openai_api_key:
+        #    try:
+         #       self.client = OpenAI(api_key=settings.openai_api_key)
+          #      self._unavailable_reason = ""
+           #     self._last_error = ""
+            #    logger.info("OpenAI client initialized successfully")
+            #except Exception as e:
+             #   self._unavailable_reason = "client_initialization_failed"
+              #  self._last_error = str(e)
+               # logger.error(f"Failed to initialize OpenAI client: {e}")
+         # else:
+           # self._unavailable_reason = "api_key_missing"
+           # self._last_error = "OPENAI_API_KEY not configured"
+           # logger.warning("OPENAI_API_KEY not configured - chatbot will use fallback responses")
+
+        # Safe logging - confirms key exists without exposing it
+        if settings.openai_api_key:
+            logger.info("✅ OpenAI API key loaded successfully")
+        else:
+            logger.warning("❌ No OpenAI API key configured")
+
         if settings.openai_api_key:
             try:
                 self.client = OpenAI(api_key=settings.openai_api_key)
                 self._unavailable_reason = ""
                 self._last_error = ""
-                logger.info("OpenAI client initialized successfully")
+                logger.info("✅ OpenAI client initialized successfully")  # Fixed line
             except Exception as e:
                 self._unavailable_reason = "client_initialization_failed"
                 self._last_error = str(e)
-                logger.error(f"Failed to initialize OpenAI client: {e}")
-        else:
-            self._unavailable_reason = "api_key_missing"
-            self._last_error = "OPENAI_API_KEY not configured"
-            logger.warning("OPENAI_API_KEY not configured - chatbot will use fallback responses")
+                logger.error(f"❌ Failed to initialize OpenAI client: {e}")  # Fixed line
     
     def is_available(self) -> bool:
         """Check if OpenAI service is available."""

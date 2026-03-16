@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi import HTTPException
 from pydantic import BaseModel, Field
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.db.session import SessionLocal
 from app.models.user import User
@@ -86,7 +87,7 @@ def list_users(
 def list_it_personnel(db: Session = Depends(get_db)):
     users = (
         db.query(User)
-        .filter(User.role == "IT", User.is_active.is_(True))
+        .filter(func.lower(User.role) == "it", User.is_active.is_(True))
         .order_by(User.created_at.desc())
         .all()
     )

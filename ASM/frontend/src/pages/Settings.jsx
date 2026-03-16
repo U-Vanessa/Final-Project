@@ -45,6 +45,12 @@ const Settings = () => {
     soundEnabled: true,
     toastEnabled: true,
   });
+  const [quickAccessForm, setQuickAccessForm] = useState({
+    email: '',
+    username: '',
+    password: '',
+    confirmPassword: '',
+  });
 
   const isITSettingsPage = location.pathname.startsWith('/settings/it');
 
@@ -71,14 +77,10 @@ const Settings = () => {
   }, []);
 
   const isITRole = useMemo(() => ['admin', 'manager', 'it'].includes(currentRole), [currentRole]);
-  const canGrantAccess = isITSettingsPage && isITRole;
+  const canGrantAccess = isITRole;
   const userLabel = accountInfo.username || accountInfo.email || 'User';
   const userRoleLabel = (currentRole || 'user').toUpperCase();
   const userInitial = (userLabel || 'U').charAt(0).toUpperCase();
-
-  if (isITSettingsPage && !isITRole) {
-    return <Navigate to="/settings" replace />;
-  }
 
   const clearStatusAfterDelay = () => {
     setTimeout(() => setStatusMessage({ text: '', type: '' }), 3000);
@@ -186,13 +188,63 @@ const Settings = () => {
     clearStatusAfterDelay();
   };
 
+  const handleQuickGrantAccess = async () => {
+    if (!canGrantAccess) {
+      return;
+    }
+
+    const normalizedEmail = (quickAccessForm.email || '').trim().toLowerCase();
+    const normalizedUsername = (quickAccessForm.username || '').trim().toLowerCase();
+    if (!normalizedEmail || !normalizedUsername || !quickAccessForm.password || !quickAccessForm.confirmPassword) {
+      setStatusMessage({ text: 'Email, username, password, and confirm password are required.', type: 'error' });
+      clearStatusAfterDelay();
+      return;
+    }
+
+    if (quickAccessForm.password !== quickAccessForm.confirmPassword) {
+      setStatusMessage({ text: 'Passwords do not match.', type: 'error' });
+      clearStatusAfterDelay();
+      return;
+    }
+
+    if (quickAccessForm.password.length < 8) {
+      setStatusMessage({ text: 'Password must be at least 8 characters.', type: 'error' });
+      clearStatusAfterDelay();
+      return;
+    }
+
+    try {
+      await usersAPI.createUser({
+        username: normalizedUsername,
+        email: normalizedEmail,
+        password: quickAccessForm.password,
+        role: 'USER',
+        full_name: normalizedUsername,
+        department: null,
+        station: null,
+      });
+
+      setQuickAccessForm({ email: '', username: '', password: '', confirmPassword: '' });
+      setStatusMessage({ text: 'User access granted successfully.', type: 'success' });
+      window.dispatchEvent(new Event('asm-users-updated'));
+    } catch (error) {
+      setStatusMessage({ text: error?.response?.data?.detail || 'Failed to grant user access.', type: 'error' });
+    }
+
+    clearStatusAfterDelay();
+  };
+
+  if (isITSettingsPage && !isITRole) {
+    return <Navigate to="/settings" replace />;
+  }
+
   return (
     <div className={`setting-container ${darkMode ? 'dark' : ''}`}>
       <UnifiedSidebar activePath={isITSettingsPage ? '/settings/it' : '/settings'} />
 
       <div className="setting-main">
         <div className="setting-header">
-          <h1 className="setting-title">{isITSettingsPage ? 'IT Settings' : 'Settings'}</h1>
+          <h1 className="setting-title">{isITRole ? 'IT Settings' : 'Settings'}</h1>
           <div className="setting-header-right">
             <button className="setting-icon-btn" type="button" title="Notifications">
               <FaBell />
@@ -277,6 +329,60 @@ const Settings = () => {
             Save Changes
           </button>
         </div>
+
+        {canGrantAccess && (
+          <div className="setting-section">
+            <h2 className="section-title"> User Access Grant</h2>
+
+            <div className="form-group">
+              <label className="form-label">Email</label>
+              <input
+                type="email"
+                className="form-input"
+                value={quickAccessForm.email}
+                onChange={(e) => setQuickAccessForm((prev) => ({ ...prev, email: e.target.value }))}
+                placeholder="e.g. alice.n@rab.gov.rw"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Username</label>
+              <input
+                type="text"
+                className="form-input"
+                value={quickAccessForm.username}
+                onChange={(e) => setQuickAccessForm((prev) => ({ ...prev, username: e.target.value }))}
+                placeholder="e.g. alice.n"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Password</label>
+              <input
+                type="password"
+                className="form-input"
+                value={quickAccessForm.password}
+                onChange={(e) => setQuickAccessForm((prev) => ({ ...prev, password: e.target.value }))}
+                placeholder="Enter password"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Confirm Password</label>
+              <input
+                type="password"
+                className="form-input"
+                value={quickAccessForm.confirmPassword}
+                onChange={(e) => setQuickAccessForm((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+                placeholder="Confirm password"
+              />
+            </div>
+
+            <button className="save-btn" onClick={handleQuickGrantAccess} type="button">
+              Grant Access
+            </button>
+          </div>
+        )}
 
         {isITSettingsPage && (
           <div className="setting-section">

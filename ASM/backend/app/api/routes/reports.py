@@ -143,7 +143,7 @@ def vouchers_overview(db: Session = Depends(get_db)):
 	resolved_count = db.query(func.count(Voucher.id)).filter(Voucher.status == "resolved").scalar() or 0
 	closed_count = db.query(func.count(Voucher.id)).filter(Voucher.status == "closed").scalar() or 0
 
-	it_users = db.query(User).filter(User.role == "IT", User.is_active.is_(True)).all()
+	it_users = db.query(User).filter(func.lower(User.role) == "it", User.is_active.is_(True)).all()
 	workload: list[ITWorkloadItem] = []
 
 	for it_user in it_users:
@@ -215,10 +215,11 @@ def get_notifications(
 	if unread_only:
 		query = query.filter(TicketNotification.is_read.is_(False))
 	if target_email:
+		normalized_target_email = target_email.lower()
 		query = query.filter(
 			or_(
 				TicketNotification.target_email.is_(None),
-				TicketNotification.target_email == target_email,
+				func.lower(TicketNotification.target_email) == normalized_target_email,
 			)
 		)
 
@@ -245,10 +246,11 @@ def mark_all_notifications_read(payload: dict, db: Session = Depends(get_db)):
 	if voucher_id is not None:
 		query = query.filter(TicketNotification.voucher_id == voucher_id)
 	if target_email:
+		normalized_target_email = target_email.lower()
 		query = query.filter(
 			or_(
 				TicketNotification.target_email.is_(None),
-				TicketNotification.target_email == target_email,
+				func.lower(TicketNotification.target_email) == normalized_target_email,
 			)
 		)
 

@@ -888,7 +888,7 @@ const Document = () => {
               
               <div className="preview-content">
                 <div className="preview-header">
-                  <h3>Rwanda Agriculture Board</h3>
+                  <h3>Rwanda Agriculture and Animal Resource Development Board</h3>
                   <p>
                     {selectedDoc.documentType === DOCUMENT_TYPES.receiving
                       ? 'Laptop Receive Form'

@@ -9,6 +9,7 @@ import { useThemeMode } from '../contexts/ThemeContext';
 const VoucherPage = () => {
   const [formData, setFormData] = useState({
     title: '',
+    requestType: 'technical',
     priority: 'medium',
     problemDescription: ''
   });
@@ -51,7 +52,7 @@ const VoucherPage = () => {
       setLoading(true);
 
       const voucherParams = {};
-      if ((isITRole && currentUserId) || showOnlyMyTickets) {
+      if (showOnlyMyTickets && currentUserId) {
         voucherParams.assigned_to_id = currentUserId;
       }
 
@@ -166,13 +167,14 @@ const VoucherPage = () => {
       setSubmitting(true);
       await voucherAPI.create({
         title: formData.title,
-        description: formData.problemDescription,
+        description: `[${formData.requestType}] ${formData.problemDescription}`,
         priority: formData.priority,
         requester_email: currentUser.email,
       });
 
       setFormData({
         title: '',
+        requestType: 'technical',
         priority: 'medium',
         problemDescription: '',
       });
@@ -278,7 +280,7 @@ const VoucherPage = () => {
             className={`voucher-tab ${activeTab === 'list' ? 'active' : ''}`}
             onClick={() => setActiveTab('list')}
           >
-            <FileText size={20} /> {canCreateVoucher ? 'View Requests' : 'My Assigned Requests'}
+            <FileText size={20} /> {canCreateVoucher ? 'View Requests' : 'All Requests'}
           </button>
         </div>
 
@@ -298,6 +300,19 @@ const VoucherPage = () => {
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 required
               />
+            </div>
+
+            <div className="voucher-form-group">
+              <label>Request Type *</label>
+              <select
+                value={formData.requestType}
+                onChange={(e) => setFormData({ ...formData, requestType: e.target.value })}
+                required
+              >
+                <option value="technical">Technical</option>
+                <option value="software">Software</option>
+                <option value="hardware">Hardware</option>
+              </select>
             </div>
 
             <div className="voucher-form-group">

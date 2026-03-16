@@ -30,7 +30,7 @@ def _build_ticket_number(db: Session) -> str:
 
 
 def _pick_it_personnel(db: Session) -> User | None:
-	it_users = db.query(User).filter(User.role == "IT", User.is_active.is_(True)).all()
+	it_users = db.query(User).filter(func.lower(User.role) == "it", User.is_active.is_(True)).all()
 	if not it_users:
 		return None
 
@@ -83,6 +83,16 @@ def create_voucher(payload: VoucherCreateRequest, db: Session = Depends(get_db))
 			severity="medium",
 			message=f"New ticket {voucher.ticket_number} assigned to you: {voucher.title}",
 			target_email=selected_it_user.email,
+		)
+		db.add(notification)
+	else:
+		# Broadcast open-ticket alerts so any IT dashboard can pick it up.
+		notification = TicketNotification(
+			voucher_id=voucher.id,
+			category="ticket_open",
+			severity="medium",
+			message=f"New open ticket {voucher.ticket_number}: {voucher.title}",
+			target_email=None,
 		)
 		db.add(notification)
 

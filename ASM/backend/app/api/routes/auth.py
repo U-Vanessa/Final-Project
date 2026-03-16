@@ -79,7 +79,7 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> AuthRes
         department=payload.department,
         station=payload.station,
         password=hash_password(payload.password),
-        role=payload.role
+        role=(payload.role or "USER").upper(),
     )
 
     db.add(user)
