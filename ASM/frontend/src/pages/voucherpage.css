@@ -383,6 +383,12 @@
   background: #f9fbfd;
 }
 
+.voucher-ticket-card-focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+  background: #eff6ff;
+}
+
 .voucher-ticket-card h4 {
   margin-bottom: 8px;
   color: #1f2d3d;

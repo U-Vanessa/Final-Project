@@ -24,6 +24,7 @@ const Document = () => {
   const canApproveDocuments = normalizedRole === 'it';
   const canManageDocuments = ['admin', 'manager', 'it'].includes(normalizedRole);
   const [activeTab, setActiveTab] = useState('new'); // 'new', 'drafts', 'submitted'
+  const [itQueueFilter, setItQueueFilter] = useState('all');
   const [formData, setFormData] = useState({
     documentType: DOCUMENT_TYPES.returning,
     // Staff Information
@@ -66,7 +67,7 @@ const Document = () => {
 
   useEffect(() => {
     if (!canManageDocuments) {
-      setActiveTab('submitted');
+      setActiveTab('pending-signatures');
     }
   }, [canManageDocuments]);
 
@@ -381,11 +382,49 @@ const Document = () => {
     );
   };
 
-  const submittedDocsForCurrentUser = canManageDocuments
-    ? submittedDocs
-    : submittedDocs.filter(
-        (doc) => (doc.recipientEmail || '').toLowerCase() === (user?.email || '').toLowerCase()
-      );
+  const receivingDocsForCurrentUser = submittedDocs.filter(
+    (doc) =>
+      (doc.recipientEmail || '').toLowerCase() === (user?.email || '').toLowerCase() &&
+      (doc.documentType || DOCUMENT_TYPES.returning) === DOCUMENT_TYPES.receiving
+  );
+
+  const pendingSignatureDocsForCurrentUser = receivingDocsForCurrentUser.filter(
+    (doc) => (doc.signatureStatus || 'not_required') === 'pending_user_signature'
+  );
+
+  const itReceivingDocs = submittedDocs.filter(
+    (doc) => (doc.documentType || DOCUMENT_TYPES.returning) === DOCUMENT_TYPES.receiving
+  );
+
+  const itPendingSignatureDocs = itReceivingDocs.filter(
+    (doc) => (doc.signatureStatus || 'not_required') === 'pending_user_signature'
+  );
+
+  const itReturnedDocs = itReceivingDocs.filter(
+    (doc) => (doc.signatureStatus || 'not_required') === 'signed' || doc.status === 'returned_to_it'
+  );
+
+  let submittedDocsBase = [];
+  if (canManageDocuments) {
+    if (itQueueFilter === 'pending') {
+      submittedDocsBase = itPendingSignatureDocs;
+    } else if (itQueueFilter === 'returned') {
+      submittedDocsBase = itReturnedDocs;
+    } else {
+      submittedDocsBase = submittedDocs;
+    }
+  } else if (activeTab === 'pending-signatures') {
+    submittedDocsBase = pendingSignatureDocsForCurrentUser;
+  } else {
+    submittedDocsBase = receivingDocsForCurrentUser;
+  }
+
+  const displayedSubmittedDocs = filterDocuments(submittedDocsBase);
+  const submittedSectionTitle = canManageDocuments
+    ? 'Submitted Documents'
+    : activeTab === 'pending-signatures'
+      ? 'Pending Signatures'
+      : 'My Receiving Documents';
 
   return (
     <div className="document-page">
@@ -420,22 +459,38 @@ const Document = () => {
               </button>
             </>
           )}
-          <button 
-            className={`tab-btn ${activeTab === 'submitted' ? 'active' : ''}`}
-            onClick={() => setActiveTab('submitted')}
-          >
-            {/*<span className="tab-icon">✅</span>*/}
-            {canManageDocuments ? `Submitted (${submittedDocs.length})` : `My Receiving Documents (${submittedDocsForCurrentUser.length})`}
-          </button>
+          {canManageDocuments ? (
+            <button
+              className={`tab-btn ${activeTab === 'submitted' ? 'active' : ''}`}
+              onClick={() => setActiveTab('submitted')}
+            >
+              Submitted ({submittedDocs.length})
+            </button>
+          ) : (
+            <>
+              <button
+                className={`tab-btn ${activeTab === 'pending-signatures' ? 'active' : ''}`}
+                onClick={() => setActiveTab('pending-signatures')}
+              >
+                Pending Signatures ({pendingSignatureDocsForCurrentUser.length})
+              </button>
+              <button
+                className={`tab-btn ${activeTab === 'submitted' ? 'active' : ''}`}
+                onClick={() => setActiveTab('submitted')}
+              >
+                My Receiving Documents ({receivingDocsForCurrentUser.length})
+              </button>
+            </>
+          )}
         </div>
 
         {/* Search Bar (for drafts and submitted) */}
-        {(activeTab === 'drafts' || activeTab === 'submitted') && (
+        {(activeTab === 'drafts' || activeTab === 'submitted' || activeTab === 'pending-signatures') && (
           <div className="search-bar">
             <span className="search-icon">🔍</span>
             <input
               type="text"
-              placeholder={`Search ${activeTab}...`}
+              placeholder={activeTab === 'pending-signatures' ? 'Search pending signatures...' : `Search ${activeTab}...`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -589,7 +644,7 @@ const Document = () => {
                       name="recipientEmail"
                       value={formData.recipientEmail}
                       onChange={handleInputChange}
-                      placeholder="staff.name@icttoolsasm.com"
+                      placeholder="staff.name@rab.gov.rw"
                       required
                     />
                   </div>
@@ -768,11 +823,11 @@ const Document = () => {
                       <p className="doc-preview">{(draft.natureOfProblem || draft.receivingComment || 'No notes').substring(0, 60)}...</p>
                     </div>
                     <div className="card-footer">
-                      <button className="edit-btn" onClick={() => loadDraft(draft)}>
+                      <button type="button" className="edit-btn" onClick={() => loadDraft(draft)}>
                         {/*<span className="btn-icon">✏️</span>*/}
                         Edit
                       </button>
-                      <button className="delete-btn" onClick={() => deleteDraft(draft.id)}>
+                      <button type="button" className="delete-btn" onClick={() => deleteDraft(draft.id)}>
                         {/*<span className="btn-icon">🗑️</span>*/}
                         Delete
                       </button>
@@ -784,7 +839,7 @@ const Document = () => {
               <div className="empty-state">
                 {/*<span className="empty-icon">📄</span>}*/}
                 <p>No draft documents found</p>
-                <button className="create-btn" onClick={() => setActiveTab('new')}>
+                <button type="button" className="create-btn" onClick={() => setActiveTab('new')}>
                   Create New Document
                 </button>
               </div>
@@ -793,12 +848,54 @@ const Document = () => {
         )}
 
         {/* Submitted Documents List */}
-        {activeTab === 'submitted' && (
+        {(activeTab === 'submitted' || activeTab === 'pending-signatures') && (
           <div className="documents-list">
-            <h2>Submitted Documents</h2>
-            {filterDocuments(submittedDocsForCurrentUser).length > 0 ? (
+            <h2>{submittedSectionTitle}</h2>
+            {canManageDocuments && (
+              <>
+                <div className="document-workflow-summary">
+                  <div className="summary-card">
+                    <div className="summary-label">Receiving Documents</div>
+                    <div className="summary-value">{itReceivingDocs.length}</div>
+                  </div>
+                  <div className="summary-card">
+                    <div className="summary-label">Pending User Signatures</div>
+                    <div className="summary-value">{itPendingSignatureDocs.length}</div>
+                  </div>
+                  <div className="summary-card">
+                    <div className="summary-label">Signed and Returned</div>
+                    <div className="summary-value">{itReturnedDocs.length}</div>
+                  </div>
+                </div>
+
+                <div className="doc-queue-filters">
+                  <button
+                    type="button"
+                    className={`queue-filter-btn ${itQueueFilter === 'all' ? 'active' : ''}`}
+                    onClick={() => setItQueueFilter('all')}
+                  >
+                    All
+                  </button>
+                  <button
+                    type="button"
+                    className={`queue-filter-btn ${itQueueFilter === 'pending' ? 'active' : ''}`}
+                    onClick={() => setItQueueFilter('pending')}
+                  >
+                    Pending Signatures
+                  </button>
+                  <button
+                    type="button"
+                    className={`queue-filter-btn ${itQueueFilter === 'returned' ? 'active' : ''}`}
+                    onClick={() => setItQueueFilter('returned')}
+                  >
+                    Signed and Returned
+                  </button>
+                </div>
+              </>
+            )}
+            {displayedSubmittedDocs.length > 0 ? (
               <div className="documents-grid">
-                {filterDocuments(submittedDocsForCurrentUser).map(doc => (
+                {displayedSubmittedDocs.map(doc => (
                   <div key={doc.id} className="document-card submitted">
                     <div className="card-header">
                       <span className="doc-ref">{doc.documentRef}</span>
@@ -832,16 +929,16 @@ const Document = () => {
                       </div>
                     </div>
                     <div className="card-footer">
-                      <button className="view-btn" onClick={() => viewDocument(doc)}>
+                      <button type="button" className="view-btn" onClick={() => viewDocument(doc)}>
                         {/*<span className="btn-icon">👁️</span>*/}
                         View
                       </button>
                       {canApproveDocuments && doc.approvalStatus === 'pending' && (
                         <>
-                          <button className="approve-btn" onClick={() => handleApproval(doc, 'approved')}>
+                          <button type="button" className="approve-btn" onClick={() => handleApproval(doc, 'approved')}>
                             Approve
                           </button>
-                          <button className="reject-btn" onClick={() => handleApproval(doc, 'rejected')}>
+                          <button type="button" className="reject-btn" onClick={() => handleApproval(doc, 'rejected')}>
                             Reject
                           </button>
                         </>
@@ -859,7 +956,7 @@ const Document = () => {
                               }))
                             }
                           />
-                          <button className="approve-btn" onClick={() => handleSignDocument(doc)}>
+                          <button type="button" className="approve-btn" onClick={() => handleSignDocument(doc)}>
                             Sign and Send to IT
                           </button>
                         </div>
@@ -871,7 +968,11 @@ const Document = () => {
             ) : (
               <div className="empty-state">
                 {/*<span className="empty-icon">📋</span>*/}
-                <p>No submitted documents found</p>
+                <p>
+                  {activeTab === 'pending-signatures'
+                    ? 'No pending signatures right now.'
+                    : 'No submitted documents found'}
+                </p>
               </div>
             )}
           </div>
@@ -1063,8 +1164,8 @@ const Document = () => {
               </div>
 
               <div className="modal-footer">
-                <button className="close-btn" onClick={() => setShowPreview(false)}>Close</button>
-                <button className="print-btn" onClick={() => window.print()}>
+                <button type="button" className="close-btn" onClick={() => setShowPreview(false)}>Close</button>
+                <button type="button" className="print-btn" onClick={() => window.print()}>
                   {/*<span className="btn-icon">🖨️</span>*/}
                   Print
                 </button>

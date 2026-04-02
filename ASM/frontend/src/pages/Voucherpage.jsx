@@ -47,6 +47,21 @@ const VoucherPage = () => {
     return searchParams.get('filter') === 'my-tickets';
   }, [location.search]);
 
+  const focusVoucherId = useMemo(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const rawValue = searchParams.get('voucher_id');
+    if (!rawValue) {
+      return null;
+    }
+    const parsed = Number(rawValue);
+    return Number.isFinite(parsed) ? parsed : null;
+  }, [location.search]);
+
+  const focusTicketNumber = useMemo(() => {
+    const searchParams = new URLSearchParams(location.search);
+    return searchParams.get('ticket') || '';
+  }, [location.search]);
+
   const loadTickets = useCallback(async () => {
     try {
       setLoading(true);
@@ -102,6 +117,12 @@ const VoucherPage = () => {
       setActiveTab('list');
     }
   }, [activeTab, canCreateVoucher]);
+
+  useEffect(() => {
+    if (focusVoucherId || focusTicketNumber) {
+      setActiveTab('list');
+    }
+  }, [focusTicketNumber, focusVoucherId]);
 
   useEffect(() => {
     loadTickets();
@@ -242,6 +263,20 @@ const VoucherPage = () => {
       setMessage(error?.response?.data?.detail || 'Failed to link document');
     }
   };
+
+  const displayedTickets = useMemo(() => {
+    if (focusVoucherId) {
+      return tickets.filter((ticket) => ticket.id === focusVoucherId);
+    }
+
+    if (focusTicketNumber) {
+      return tickets.filter((ticket) => ticket.ticket_number === focusTicketNumber);
+    }
+
+    return tickets;
+  }, [focusTicketNumber, focusVoucherId, tickets]);
+
+  const hasTicketFilter = Boolean(focusVoucherId || focusTicketNumber);
 
   return (
     <div className="voucher-container">
@@ -413,14 +448,18 @@ const VoucherPage = () => {
 
             {loading && <p>Loading vouchers...</p>}
 
-            {!loading && tickets.length === 0 && (
+            {!loading && displayedTickets.length === 0 && (
               <p>{(showOnlyMyTickets || isITRole) ? 'No tickets currently assigned to you.' : 'No vouchers found.'}</p>
             )}
 
-            {!loading && tickets.length > 0 && (
+            {!loading && hasTicketFilter && displayedTickets.length === 0 && (
+              <p>Ticket from notification was not found in your accessible list.</p>
+            )}
+
+            {!loading && displayedTickets.length > 0 && (
               <div className="voucher-ticket-grid">
-                {tickets.map((ticket) => (
-                  <div key={ticket.id} className="voucher-ticket-card">
+                {displayedTickets.map((ticket) => (
+                  <div key={ticket.id} className={`voucher-ticket-card ${hasTicketFilter ? 'voucher-ticket-card-focus' : ''}`}>
                     <h4>{ticket.ticket_number} • {ticket.title}</h4>
                     <p>{ticket.description}</p>
                     <p>Priority: <strong>{ticket.priority}</strong> | Status: <strong>{ticket.status}</strong></p>

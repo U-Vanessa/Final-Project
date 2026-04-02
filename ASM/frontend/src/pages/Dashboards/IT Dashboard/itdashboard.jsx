@@ -13,9 +13,13 @@ import {
 } from 'react-icons/fa';
 import { FiMenu } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import { reportAPI, voucherAPI } from '../../../services/api';
+import { documentAPI, reportAPI, voucherAPI } from '../../../services/api';
 import { useThemeMode } from '../../../contexts/ThemeContext';
 import './itdashboard.css';
+
+const DOCUMENT_TYPES = {
+  receiving: 'receiving',
+};
 
 const ITDashboard = () => {
   const navigate = useNavigate();
@@ -40,6 +44,11 @@ const ITDashboard = () => {
     in_progress: 0,
     resolved: 0,
     closed: 0,
+  });
+  const [documentQueue, setDocumentQueue] = useState({
+    receiving: 0,
+    pendingSignatures: 0,
+    signedReturned: 0,
   });
   const [dataError, setDataError] = useState('');
   const [toastMessage, setToastMessage] = useState('');
@@ -130,9 +139,10 @@ const ITDashboard = () => {
       try {
         setDataError('');
 
-        const [overview, vouchers] = await Promise.all([
+        const [overview, vouchers, documents] = await Promise.all([
           reportAPI.getOverview(),
           voucherAPI.list(),
+          documentAPI.list(),
         ]);
 
         await reportAPI.checkSla();
@@ -163,6 +173,23 @@ const ITDashboard = () => {
           }
         );
         setQueueSnapshot(nextQueueSnapshot);
+
+        const receivingDocuments = (documents || []).filter(
+          (doc) => (doc.document_type || '') === DOCUMENT_TYPES.receiving
+        );
+        const pendingSignatures = receivingDocuments.filter(
+          (doc) => (doc.signature_status || 'not_required') === 'pending_user_signature'
+        );
+        const signedReturned = receivingDocuments.filter(
+          (doc) =>
+            (doc.signature_status || 'not_required') === 'signed' ||
+            (doc.status || '') === 'returned_to_it'
+        );
+        setDocumentQueue({
+          receiving: receivingDocuments.length,
+          pendingSignatures: pendingSignatures.length,
+          signedReturned: signedReturned.length,
+        });
 
         const recent = vouchers.slice(0, 8).map((item) => ({
           id: item.id,
@@ -201,7 +228,7 @@ const ITDashboard = () => {
   const handleMarkNotificationRead = async (notificationId) => {
     try {
       await reportAPI.markNotificationRead(notificationId);
-      await loadNotifications();
+      setNotifications((prev) => prev.filter((item) => item.id !== notificationId));
     } catch {
       setDataError('Failed to mark notification as read');
     }
@@ -210,11 +237,47 @@ const ITDashboard = () => {
   const handleMarkAllNotificationsRead = async () => {
     try {
       await reportAPI.markAllNotificationsRead({ targetEmail: user?.email || null });
-      await loadNotifications();
+      setNotifications((prev) => prev.map((item) => ({ ...item, is_read: true })));
     } catch {
       setDataError('Failed to mark all notifications as read');
     }
   };
+
+  const extractTicketNumber = (message = '') => {
+    const match = String(message).match(/TKT-[A-Za-z0-9-]+/);
+    return match ? match[0] : '';
+  };
+
+  const formatNotificationMessage = (notification) => {
+    const ticketNumber = extractTicketNumber(notification?.message) || `ticket #${notification?.voucher_id}`;
+
+    if (notification?.category === 'sla_breached') {
+      return `You have ${ticketNumber} that needs immediate fixing because SLA is breached.`;
+    }
+
+    if (notification?.category === 'sla_at_risk') {
+      return `You have ${ticketNumber} to work on now to prevent an SLA breach.`;
+    }
+
+    return `You have ${ticketNumber} that requires your attention.`;
+  };
+
+  const handleViewNotification = (notification) => {
+    const query = new URLSearchParams();
+    if (notification?.voucher_id) {
+      query.set('voucher_id', String(notification.voucher_id));
+    }
+
+    const ticketNumber = extractTicketNumber(notification?.message);
+    if (ticketNumber) {
+      query.set('ticket', ticketNumber);
+    }
+
+    const queryString = query.toString();
+    navigate(`/voucher${queryString ? `?${queryString}` : ''}`);
+  };
+
+  const unreadNotifications = notifications.filter((item) => !item.is_read);
 
   // Loading state
   if (loading) {
@@ -296,8 +359,8 @@ const ITDashboard = () => {
             onClick={() => setShowNotifications((prev) => !prev)}
           >
             🔔
-            {notifications.filter((item) => !item.is_read).length > 0 && (
-              <span className="notification-badge">{notifications.filter((item) => !item.is_read).length}</span>
+            {unreadNotifications.length > 0 && (
+              <span className="notification-badge">{unreadNotifications.length}</span>
             )}
           </button>
           <button
@@ -324,29 +387,45 @@ const ITDashboard = () => {
 
         {showNotifications && (
           <div className="simple-notification-panel">
-            <h4>Notifications</h4>
-            {notifications.length > 0 && (
-              <button type="button" onClick={handleMarkAllNotificationsRead} style={{ marginBottom: '8px' }}>
-                Mark all as read
-              </button>
-            )}
-            {notifications.length > 0 ? (
-              notifications.map(notification => (
-                <div key={notification.id} className="notification-item" style={{ opacity: notification.is_read ? 0.6 : 1 }}>
-                  <div>{notification.message}</div>
-                  {!notification.is_read && (
+            <div className="simple-notification-header">
+              <h4>Notifications</h4>
+              {unreadNotifications.length > 0 && (
+                <button
+                  type="button"
+                  className="mark-all-btn"
+                  onClick={handleMarkAllNotificationsRead}
+                >
+                  Mark all as read
+                </button>
+              )}
+            </div>
+            {unreadNotifications.length > 0 ? (
+              unreadNotifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  className={`notification-item ${notification.is_read ? 'is-read' : 'is-unread'}`}
+                >
+                  <div className="notification-text">{formatNotificationMessage(notification)}</div>
+                  <div className="notification-actions-row">
                     <button
                       type="button"
+                      className="view-ticket-btn"
+                      onClick={() => handleViewNotification(notification)}
+                    >
+                      View
+                    </button>
+                    <button
+                      type="button"
+                      className="mark-single-btn"
                       onClick={() => handleMarkNotificationRead(notification.id)}
-                      style={{ marginTop: '6px' }}
                     >
                       Mark as read
                     </button>
-                  )}
+                  </div>
                 </div>
               ))
             ) : (
-              <p>No new notifications</p>
+              <p className="notifications-empty">No new notifications</p>
             )}
           </div>
         )}
@@ -489,6 +568,24 @@ const ITDashboard = () => {
               <div className="simple-stat-card">
                 <div className="simple-stat-value">{stats.pending}</div>
                 <div className="simple-stat-label">Pending</div>
+              </div>
+            </div>
+          </section>
+
+          <section className="simple-stats-section">
+            <h2 className="simple-section-title">Document Signature Workflow</h2>
+            <div className="simple-stats-grid">
+              <div className="simple-stat-card" style={{ cursor: 'pointer' }} onClick={() => navigate('/document')}>
+                <div className="simple-stat-value">{documentQueue.receiving}</div>
+                <div className="simple-stat-label">Receiving Documents</div>
+              </div>
+              <div className="simple-stat-card" style={{ cursor: 'pointer' }} onClick={() => navigate('/document')}>
+                <div className="simple-stat-value">{documentQueue.pendingSignatures}</div>
+                <div className="simple-stat-label">Pending User Signatures</div>
+              </div>
+              <div className="simple-stat-card" style={{ cursor: 'pointer' }} onClick={() => navigate('/document')}>
+                <div className="simple-stat-value">{documentQueue.signedReturned}</div>
+                <div className="simple-stat-label">Signed and Returned to IT</div>
               </div>
             </div>
           </section>

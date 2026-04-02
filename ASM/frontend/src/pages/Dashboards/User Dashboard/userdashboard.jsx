@@ -219,6 +219,16 @@ const UserDashboard = () => {
 
             <li
               className={`simple-nav-item ${
+                activeNav === 'document' ? 'active' : ''
+              }`}
+              onClick={() => { setActiveNav('document'); navigate('/document'); }}
+            >
+              <FaFile />
+              <span className="simple-nav-label">Document</span>
+            </li>
+
+            <li
+              className={`simple-nav-item ${
                 activeNav === 'reports' ? 'active' : ''
               }`}
                onClick={() => { setActiveNav('reports'); navigate('/report'); }}
@@ -330,6 +340,18 @@ const UserDashboard = () => {
                 </div>
                 <h3>AI Chatbot</h3>
                 <p>Get instant help from our AI</p>
+              </div>
+
+              <div
+                className="simple-action-card"
+                onClick={() => navigate('/document')}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className="simple-action-icon">
+                  <FaFile />
+                </div>
+                <h3>Document</h3>
+                <p>Sign and manage documents</p>
               </div>
             </div>
           </section>
