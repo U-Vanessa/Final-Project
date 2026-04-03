@@ -41,6 +41,7 @@ Final Project/
 ### Environment Setup
 
 Prerequisites
+
 ▫️Python 3.9+ with pip
 
 ▫️Node.js 18+ with npm or yarn
@@ -97,17 +98,19 @@ Frontend: Visit http://localhost:3000 for the web application
 
 
 ### Designs & Mockups
-Figma Designs
+
+▫️Figma Designs
 Figma Link: [https://www.figma.com/design/y5pAXgUPvQJJOG7cQNcODH/ASM?node-id=0-1&t=rRHX73v1o78dMkNM-1](https://www.figma.com/design/y5pAXgUPvQJJOG7cQNcODH/ASM?node-id=0-1&t=rRHX73v1o78dMkNM-1)
 
-Design System
-Primary Color: #3b82f6 (Blue)
+#### Design System
 
-Secondary Color: #8b5cf6 (Purple)
+▫️Primary Color: #3b82f6 (Blue)
 
-Font Family: Inter
+▫️Secondary Color: #8b5cf6 (Purple)
 
-Design Principles: Material Design 3
+▫️Font Family: Inter
+
+▫️Design Principles: Material Design 3
 
 Application Screenshots
 1. Login Interface
@@ -143,16 +146,18 @@ AI-powered helpdesk for instant support
 
 ### Deployment Plan
 
-▫️Phase 1: Development Environment
+##### ▫️Phase 1: Development Environment
+
 ✅ Complete - Local development setup
 
 ✅ Complete - Basic authentication system
 
 ✅ Complete - Dashboard and core components
 
-Target: Internal testing and feature validation
+✅ Target: Internal testing and feature validation
 
-▫️Phase 2: Staging Environment
+##### ▫️Phase 2: Staging Environment
+
 ✅ Backend deployed on Render Cloud Platform
 
 ✅ Automatic deployment via GitHub integration
@@ -167,14 +172,16 @@ npm run build
 ```
 ✅ Completed – System is live and accessible
 
-▫️Phase 3: Production Environment (Future work)
+##### ▫️Phase 3: Production Environment (Future work)
+
 ▶️ Integration of cloud AI services (instead of local Ollama)
 
 ▶️ Migration to scalable cloud infrastructure (AWS/GCP)
 
 ▶️ Containerization using Docker
 
-▫️Phase 4: Scaling & Optimization (Furure Work
+##### ▫️Phase 4: Scaling & Optimization (Furure Work)
+
 ▶️ Load balancing for high traffic
 
 ▶️ Database optimization
