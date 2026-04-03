@@ -22,7 +22,7 @@ ASM (Asset & Support Management System) is a comprehensive, full-stack solution 
 
 ### GitHub Repository
 ``` bash
-Repository URL: [https://github.com/U-Vanessa/Final-Project.git]([https://github.com/U-Vanessa/Final-Project.git](https://github.com/U-Vanessa/Final-Project.git))
+Repository URL: [https://github.com/U-Vanessa/Final-Project.git]([https://github.com/U-Vanessa/Final-Project.git])
 ```
 
 ### Repository Structure
@@ -174,8 +174,7 @@ npm run build
 - Part 1 [https://www.loom.com/share/b03521f0a2b54ddd963dafdcec2a6ed3 ](https://www.loom.com/share/b03521f0a2b54ddd963dafdcec2a6ed3)
 - Part 2 [https://www.loom.com/share/7046ccd5dcfa461e9e5f712010ec8f04 ](https://www.loom.com/share/7046ccd5dcfa461e9e5f712010ec8f04)
 - Part 3 [https://www.loom.com/share/38f21e7e13934ed790897c97213cb14b](https://www.loom.com/share/38f21e7e13934ed790897c97213cb14b)
-- Final Project Part 1[https://www.loom.com/share/a728a819a20a400facca1eaef50e3cd0]([url](https://www.loom.com/share/a728a819a20a400facca1eaef50e3cd0))
-- Final Project Part 2 [https://www.loom.com/share/62d8b745ff3d40118279d82e3fb59412]([url](https://www.loom.com/share/62d8b745ff3d40118279d82e3fb59412))
+- Final Project Part 1[https://www.loom.com/share/4cb32a7114e34e399d7c0d5572745554]([https://www.loom.com/share/4cb32a7114e34e399d7c0d5572745554](https://www.loom.com/share/4cb32a7114e34e399d7c0d5572745554)
 
 ### Author
 Vanessa UWONKUNDA 
