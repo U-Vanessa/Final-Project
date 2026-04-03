@@ -42,7 +42,9 @@ Final Project/
 
 Prerequisites
 ▫️Python 3.9+ with pip
+
 ▫️Node.js 18+ with npm or yarn
+
 ▫️SQL Database (PostgreSQL recommended or SQLite for local development)
 
 ### Git for version control
