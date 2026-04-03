@@ -108,23 +108,29 @@ Design Principles: Material Design 3
 
 Application Screenshots
 1. Login Interface
-   <img width="1391" height="816" alt="{9B62683F-473B-4A95-8241-1E824C291848}" src="https://github.com/user-attachments/assets/0f8049f0-6eb0-4282-a67e-f9987192765a" />
+   <img width="1407" height="845" alt="image" src="https://github.com/user-attachments/assets/1a615420-c50b-4242-aa36-c2588c31db73" />
+
 Modern login interface with email/password authentication
 
 3. Dashboard Overview
-   <img width="1918" height="1143" alt="{A4BB5A2E-0ED5-41EE-9B7F-4732B0E2100C}" src="https://github.com/user-attachments/assets/4e838b0c-1a32-47ef-a149-a43a66ca76b4" />
-Main dashboard with statistics, quick actions, and recent activity
 
+I. IT Dashboard
+   <img width="1918" height="981" alt="image" src="https://github.com/user-attachments/assets/ceb9a0eb-5990-41be-80b4-36a553488aea" />
+IT dashboard with statistics, quick actions, and recent activity
+
+II. User Dashboard
+<img width="1917" height="903" alt="image" src="https://github.com/user-attachments/assets/cbb36343-500b-437c-a785-2f72c2ccde4b" />
+Users dashboard with statistics, quick actions, and recent activity
 4. Asset Management
-https://screenshots/assets.png
+   <img width="1917" height="1043" alt="image" src="https://github.com/user-attachments/assets/2d84d44c-2750-4175-bd93-9afae4c5a3a0" />
 Asset inventory with filtering and search capabilities
 
-5. Voucher
+6. Voucher
    <img width="1904" height="1085" alt="{11FDFBF2-BB8E-4F45-A599-41C70A74D212}" src="https://github.com/user-attachments/assets/92fff924-45ae-4523-b5d3-ea9a8847033c" />
 Voucher Support ticket management with status tracking
 
 7. AI Chat Assistant
-   <img width="1911" height="1084" alt="{CC054C33-0598-4116-A1A0-9485F4796192}" src="https://github.com/user-attachments/assets/98a844e9-2399-4f9f-83e1-96e3e9724194" />
+   <img width="1918" height="1001" alt="image" src="https://github.com/user-attachments/assets/8498a032-edf8-4126-808e-2dd9a302408b" />
 AI-powered helpdesk for instant support
 
 
@@ -160,12 +166,16 @@ npm run build
 
 ▫️Phase 3: Production Environment (Future work)
 ▶️ Integration of cloud AI services (instead of local Ollama)
+
 ▶️ Migration to scalable cloud infrastructure (AWS/GCP)
+
 ▶️ Containerization using Docker
 
 ▫️Phase 4: Scaling & Optimization (Furure Work
 ▶️ Load balancing for high traffic
+
 ▶️ Database optimization
+
 ▶️ CDN integration for faster frontend delivery
 
 ### Video Demo 
