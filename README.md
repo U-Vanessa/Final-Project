@@ -22,24 +22,20 @@ ASM (Asset & Support Management System) is a comprehensive, full-stack solution 
 
 ### GitHub Repository
 ``` bash
-Repository URL: https://github.com/U-Vanessa/Final-Project.git
+Repository URL: [https://github.com/U-Vanessa/Final-Project.git]([https://github.com/U-Vanessa/Final-Project.git](https://github.com/U-Vanessa/Final-Project.git))
 ```
 
 ### Repository Structure
 
-asm-system/
+Final Project/
+   ASM/
 
-├── backend/          # FastAPI Python backend
-
-├── frontend/         # React TypeScript frontend
-
-├── docs/             # Documentation
-
-├── screenshots/      # Application screenshots
-
-├── designs/          # Figma mockups & designs
-
-└── README.md         # This file
+      ├── backend/          # FastAPI Python backend
+      ├── frontend/         # React TypeScript frontend
+      ├── docs/             # Documentation
+      ├── screenshots/      # Application screenshots
+      ├── designs/          # Figma mockups & designs
+      └── README.md         # This file
 
 
 ### Environment Setup
