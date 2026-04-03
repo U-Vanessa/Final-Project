@@ -39,7 +39,7 @@ const VoucherPage = () => {
   const normalizedRole = (currentUser?.role || '').toLowerCase();
   const isITRole = ['admin', 'manager', 'it'].includes(normalizedRole);
   const canManageTickets = isITRole;
-  const canCreateVoucher = !isITRole;
+  const canCreateVoucher = Boolean(currentUser?.email);
   const currentUserId = Number(currentUser?.id || 0);
 
   const showOnlyMyTickets = useMemo(() => {
