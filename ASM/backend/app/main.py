@@ -5,6 +5,7 @@ from app.db.migrations import run_startup_migrations
 from app.models import user, voucher, document, disposal, sla_config, notification
 from app.api.routes import users, auth, vouchers, reports, documents, disposal as disposal_routes, chatbot
 from app.core.config import settings
+from fastapi import Response
 
 # STEP 1: Create FastAPI app FIRST
 app = FastAPI(
@@ -34,6 +35,10 @@ app.include_router(disposal_routes.router, prefix="/disposal", tags=["Disposal"]
 app.include_router(chatbot.router, prefix="/chatbot", tags=["Chatbot"])
 
 # STEP 4: Test route
-@app.api_route("/", methods=["GET", "HEAD"])
+@app.get("/")
 def root():
     return {"message": "Backend is running successfully"}
+
+@app.head("/")
+def head_root():
+    return Response(status_code=200)
