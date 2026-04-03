@@ -1,5 +1,7 @@
 # Final-Project
 
+## Design and Implementation of an Integrated ICT Asset and Support Management System
+
 ### Description
 ASM (Asset & Support Management System) is a comprehensive, full-stack solution designed specifically for ICT departments and organizations to streamline asset tracking, support ticket management, and resource optimization. Built with FastAPI (Python) backend and React TypeScript frontend, it provides a robust, scalable platform for managing ICT infrastructure with real-time tracking and AI-powered assistance.
 
@@ -26,11 +28,17 @@ Repository URL: https://github.com/U-Vanessa/Final-Project.git
 ### Repository Structure
 
 asm-system/
+
 ├── backend/          # FastAPI Python backend
+
 ├── frontend/         # React TypeScript frontend
+
 ├── docs/             # Documentation
+
 ├── screenshots/      # Application screenshots
+
 ├── designs/          # Figma mockups & designs
+
 └── README.md         # This file
 
 
@@ -48,13 +56,14 @@ MongoDB 6.0+ (local or cloud instance)
 1. Clone Repository
 ```bash
 git clone https://github.com/yourusername/asm-system.git
-cd asm-system
+cd ASM
+```
 2. Backend Setup
-bash
+```bash
 # Navigate to backend directory
 cd backend
-# Create virtual environment
 python -m venv venv
+
 # Activate virtual environment
 # Windows:
 venv\Scripts\activate
@@ -63,31 +72,19 @@ source venv/bin/activate
 
 # Install Python dependencies
 pip install -r requirements.txt
-
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your configuration:
-# MONGODB_URL=mongodb://localhost:27017
-# DATABASE_NAME=asm_database
-# SECRET_KEY=your-secret-key-change-in-production
-
-# Run MongoDB (in a new terminal)
-mongod
-
+``` 
 # Start FastAPI server
+```bash
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
 3. Frontend Setup
-bash
+```bash
 # Navigate to frontend directory
 cd ../frontend
 
 # Install dependencies
 npm install
-
-# Create environment file
-cp .env.example .env
-# Edit .env:
-# REACT_APP_API_URL=http://localhost:8000
 
 # Start development server
 npm start
@@ -153,150 +150,29 @@ AI-powered helpdesk for instant support
 Target: Internal testing and feature validation
 
 ▫️Phase 2: Staging Environment
-Backend Deployment (AWS/GCP/Azure)
+✅ Backend deployed on Render Cloud Platform
+
+✅ Automatic deployment via GitHub integration
+
+✅ Environment variables managed securely on Render
 ```bash
-# AWS Elastic Beanstalk
-eb init asm-backend --platform python-3.9
-eb create asm-staging --envvars SECRET_KEY=prod-secret-key
+uvicorn app.main:app --host 0.0.0.0 --port $PORT
 ```
-#### Build for production
-``` bash
+✅ Frontend built using
+```bash
 npm run build
 ```
+✅ Completed – System is live and accessible
 
-▫️Phase 3: Production Environment
-Infrastructure as Code (Terraform)
-hcl
-# terraform/main.tf
-```bash
-resource "aws_instance" "asm_backend" {
-  ami           = "ami-0c55b159cbfafe1f0"
-  instance_type = "t3.medium"
-  
-  user_data = <<-EOF
-              #!/bin/bash
-              cd /opt/asm-system
-              docker-compose up -d
-              EOF
-}
+▫️Phase 3: Production Environment (Future work)
+▶️ Integration of cloud AI services (instead of local Ollama)
+▶️ Migration to scalable cloud infrastructure (AWS/GCP)
+▶️ Containerization using Docker
 
-resource "mongodbatlas_cluster" "asm_db" {
-  project_id = var.atlas_project_id
-  name       = "asm-production"
-  provider_name = "AWS"
-  region_name   = "us-east-1"
-  instance_size = "M10"
-}
-CI/CD Pipeline (GitHub Actions)
-yaml
-```
-#### .github/workflows/deploy.yml
-``` bash
-name: Deploy ASM
-on:
-  push:
-    branches: [main]
-jobs:
-  deploy-backend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Deploy to AWS
-        run: |
-          docker build -t asm-backend .
-          aws ecr push asm-backend:latest
-  deploy-frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Deploy to Vercel
-        run: |
-          npm run build
-          vercel --prod --token $VERCEL_TOKEN
-```
-▫️Phase 4: Scaling & Optimization
-``` bash
-#### docker-compose.scale.yml
-services:
-  backend:
-    image: asm-backend:latest
-    deploy:
-      replicas: 3
-      resources:
-        limits:
-          memory: 512M
-    environment:
-      - MONGODB_URL=mongodb://mongodb:27017
-  
-  mongodb:
-    image: mongo:6.0
-    volumes:
-      - mongodb_data:/data/db
-    deploy:
-      placement:
-        constraints: [node.role == manager]
-``` 
-### Load Balancing
-AWS: Application Load Balancer
-
-Nginx: Reverse proxy with caching
-
-CDN: CloudFront for static assets
-
-### Legal, Terms of Service & Privacy Policy (Combined)
-▫️ Purpose
-
-This combined policy governs the use of the ASM System and explains how user and system data is collected, used, protected, and managed.
-
-▫️ Acceptable Use
-
-- The ASM System is intended strictly for authorized internal users.
-
-- Users must use the system only for approved operational purposes.
-
-- Unauthorized access, data manipulation, reverse engineering, or misuse of the system is prohibited.
-
-▫️User Responsibilities
-
-- Users are responsible for maintaining the confidentiality of their login credentials.
-
-- Any suspected security breach must be reported immediately.
-
-- Users must ensure that the information they provide is accurate and up to date.
-
-▫️Data Collection & Usage
-
--The system collects only necessary user, device, and operational data.
-
--Collected data is used exclusively for system functionality, security, auditing, and service improvement.
-
--Activity logs may be recorded for compliance and security monitoring.
-
-▫️Data Protection & Security
-
-- Passwords are never stored in plain text and must be securely processed by the backend.
-
-- Appropriate technical and organizational measures are implemented to protect data integrity and confidentiality.
-
-- Access to sensitive data is restricted based on user roles and permissions.
-
-▫️Data Sharing
-
-- User data is not shared with third parties without proper authorization.
-
-- Data disclosure may occur only when required by law or internal policy.
-
-▫️System Availability & Changes
-
-- The organization reserves the right to update, modify, or restrict system access at any time.
-
-- Features and policies may evolve to improve security and performance.
-
-▫️Compliance
-
-- Users must comply with all applicable organizational policies and relevant regulations.
-
-- Violations may result in access suspension or disciplinary action.
+▫️Phase 4: Scaling & Optimization (Furure Work
+▶️ Load balancing for high traffic
+▶️ Database optimization
+▶️ CDN integration for faster frontend delivery
 
 ### Video Demo 
 - Part 1 [https://www.loom.com/share/b03521f0a2b54ddd963dafdcec2a6ed3 ](https://www.loom.com/share/b03521f0a2b54ddd963dafdcec2a6ed3)
