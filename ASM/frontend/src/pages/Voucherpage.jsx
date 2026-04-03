@@ -38,8 +38,9 @@ const VoucherPage = () => {
 
   const normalizedRole = (currentUser?.role || '').toLowerCase();
   const isITRole = ['admin', 'manager', 'it'].includes(normalizedRole);
+  const isUserRole = normalizedRole === 'user';
   const canManageTickets = isITRole;
-  const canCreateVoucher = Boolean(currentUser?.email);
+  const canCreateVoucher = isUserRole;
   const currentUserId = Number(currentUser?.id || 0);
 
   const showOnlyMyTickets = useMemo(() => {
@@ -78,7 +79,7 @@ const VoucherPage = () => {
       ]);
 
       const normalizedTickets = (voucherData || []).filter((ticket) => {
-        if (normalizedRole === 'user' && currentUserId) {
+        if (isUserRole && currentUserId) {
           return ticket.requester_id === currentUserId;
         }
         return true;
@@ -110,7 +111,7 @@ const VoucherPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentUserId, isITRole, normalizedRole, showOnlyMyTickets]);
+  }, [currentUserId, isITRole, isUserRole, showOnlyMyTickets]);
 
   useEffect(() => {
     if (!canCreateVoucher && activeTab === 'create') {

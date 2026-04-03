@@ -45,10 +45,10 @@ const LoginPage = () => {
       
       if (result.success) {
         // Get user role from response
-        const userRole = result.data?.user?.role || 'user';
+        const userRole = (result.data?.user?.role || 'user').toLowerCase();
         
         // Redirect based on role
-        if (userRole === 'admin' || userRole === 'manager') {
+        if (userRole === 'admin' || userRole === 'manager' || userRole === 'it') {
           navigate('/it-dashboard');
         } else {
           navigate('/user-dashboard');
