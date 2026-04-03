@@ -49,7 +49,8 @@ Prerequisites
 
 1. Clone Repository
 ```bash
-git clone https://github.com/yourusername/asm-system.git
+git clone [https://github.com/U-Vanessa/Final-Project.git]
+cd Final Project
 cd ASM
 ```
 2. Backend Setup
