@@ -43,14 +43,18 @@ const Disposal = () => {
   const [queuedItems, setQueuedItems] = useState([]);
 
   const [stations] = useState([
-    'Kigali HQ',
-    'Branch A - Kicukiro',
-    'Branch B - Nyarugenge',
-    'Branch C - Gasabo',
-    'Northern Province - Musanze',
-    'Southern Province - Huye',
-    'Eastern Province - Nyagatare',
-    'Western Province - Rusizi'
+    'Nyamagabe Station',
+    'Rubirizi Station',
+    'Muhanga Station',
+    'Musanze Station',
+    'Gishwati Station',
+    'Songa Station',
+    'Rubona Station',
+    'Ngoma Station',
+    'Gakuta Station',
+    'Nyagatare Station',
+    'Tamira Station',
+    'Ntendezi Station'
   ]);
 
   const [departments] = useState([

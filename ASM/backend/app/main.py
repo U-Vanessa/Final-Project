@@ -34,6 +34,6 @@ app.include_router(disposal_routes.router, prefix="/disposal", tags=["Disposal"]
 app.include_router(chatbot.router, prefix="/chatbot", tags=["Chatbot"])
 
 # STEP 4: Test route
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def root():
     return {"message": "Backend is running successfully"}
